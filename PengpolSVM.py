@@ -1,10 +1,11 @@
 
 selectedKernel = 0
 degree = 2
-constanta = 1
+constanta = 2
 thou = 0
 lamda = 3
-gamma = 0.05
+gamma = 0
+maxGamma = 0
 
 # Data
 banyakFitur = 2
@@ -26,6 +27,7 @@ arrayData = [
 arrayKelas = [
   -1, 1, 1, -1
 ]
+arrayAlphaI = []
 arrayD = []
 arrayK = []
 
@@ -48,7 +50,14 @@ def setLamda():
 
 def setGamma():
 	global gamma
-	gamma = float(input("Input gamma: "))
+	print("Masukkan gamma antara 0 - %.5f" %maxGamma)
+	while True:
+		gamma = float(input("Input gamma: "))
+		if gamma <= 0 and gamma >= maxGamma:
+			print("Masukkan gamma lebih dari 0 dan kurang dari %.5f" %maxGamma)
+		else:
+			break
+	
 
 def setArrayData():
 	global arrayData
@@ -132,6 +141,7 @@ def calculateKernel()
 
 def calculateArrayD():
 	global arrayD
+	global maxGamma
 	for i in range(banyakData):
 		row = []
 		for j in range(banyakData):
@@ -140,11 +150,13 @@ def calculateArrayD():
 			* ( polinomialDegreeUpToD(arrayData[i], arrayData[j]) + (lamda**2) ))
 		print(row)
 		arrayD.append(row)
-
+	maxGamma = (2 / (max(max(arrayD))))
 
 def seqLearning():
-	ai = [0.0 for i in range(banyakData)]
+	global arrayAlphaI
+	arrayAlphaI = [0.0 for i in range(banyakData)]
 	calculateArrayD()
+	setGamma()
 	dAi = [0.0 for i in range(banyakData)]
 	newAi = [0.0 for i in range(banyakData)]
 	while True:
@@ -152,13 +164,13 @@ def seqLearning():
 		for i in range(banyakData):
 			#print(ei[i] , "===>")
 			for j in range(banyakData):
-				#print(ai[i] , )
-				ei[i] += (ai[j] * arrayD[i][j])
+				#print(arrayAlphaI[i] , )
+				ei[i] += (arrayAlphaI[j] * arrayD[i][j])
 				#print(ai[i], "*", arrayD[i][j], "=", ei[i] , "-> ", end='')
 			#print("Ei %.6f" %ei[i])
-			dAi[i] = min( max(gamma * (1 - ei[i]), -1 * ai[i] ), (constanta - ai[i]) )
+			dAi[i] = min( max(gamma * (1 - ei[i]), -1 * arrayAlphaI[i] ), (constanta - arrayAlphaI[i]) )
 			#print("delta Ai %.6f" %dAi[i])
-			newAi[i] = ai[i] + dAi[i]
+			newAi[i] = arrayAlphaI[i] + dAi[i]
 			#print("new Ai %.6f" %newAi[i])
 		
 		#print("cek")
@@ -166,20 +178,30 @@ def seqLearning():
 		for i in range(banyakData):
 			if dAi[i] <= 0.00001:
 				count += 1
-			ai[i] = newAi[i]
+			arrayAlphaI[i] = newAi[i]
 		
 		if count == banyakData:
 			break
 	
-	for i in range(len(ai)):
-		print("alpha ", (i+1), "= %.3f" %ai[i])
-		
-	return ai
+	for i in range(len(arrayAlphaI)):
+		print("alpha ", (i+1), "= %.3f" %arrayAlphaI[i])
 
+def calculateSign(x):
+	result = 0
+	for i in range(banyakData):
+		temp = (arrayKelas[i] * arrayAlphaI[i] 
+		* polinomialDegreeUpToD(arrayData[i], x))
+		print("jarak ke %d = %.3f" %((i+1), temp))
+		result += temp
+	print(result)	
+	if result < 0:
+		return -1
+	else :
+		return 1
 	
 #print(linier( [2], [2] ) )
 #setArrayData()
 printArrayData()
 seqLearning()
-#calculateArrayD()
+print("Sign for (1, 5) = %d" %calculateSign([1, 5]))
 #printArrayD()
