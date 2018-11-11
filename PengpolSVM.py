@@ -6,31 +6,59 @@ thou = 0
 lamda = 3
 gamma = 0
 maxGamma = 0
+maksimalLoop = 100
 
 # Data
 banyakFitur = 2
-banyakData = 4
-'''arrayData = [
+banyakData = 5
+arrayData = [
   [60,  165],
   [70,  160],
   [80,  165],
   [100, 155],
-  [40,  175]]'''
+  [40,  175],
+  [90, 	155]]
+'''
 arrayData = [
   [1,    1],
   [1,   -1],
   [-1,   1],
   [-1,  -1]]
-'''arrayKelas = [
+'''
+arrayKelas = [
   1, 1, 1, -1, -1
-]'''
+]
+'''
 arrayKelas = [
   -1, 1, 1, -1
 ]
+'''
 arrayAlphaI = []
 arrayD = []
 arrayK = []
 
+def normalisasiData(minRange = 0, maxRange = 1):
+	global arrayData
+	maxFiturI = []
+	minFiturI = []
+	arrayRes = []
+	for j in range(banyakFitur):
+		maxFiturI.append( max(max([arrayData[i][j:j+1] for i in range(0, banyakData)])) )
+		minFiturI.append( min(min([arrayData[i][j:j+1] for i in range(0, banyakData)])) )
+	
+	for i in range(banyakData + 1):
+		temp = []
+		for j in range(banyakFitur):
+			temp.append( (minRange +
+				( (arrayData[i][j] - minFiturI[j]) * (maxRange - minRange)
+				/ ( maxFiturI[j] - minFiturI[j] ) ) ) )
+		#print(temp)
+		arrayRes.append(temp)
+	return arrayRes
+	#print("max ", maxFiturI)
+	#print("min ", minFiturI)
+	#print(arrayRes)
+	
 def setDegree():
 	global degree
 	degree = int(input("Input degree: "))
@@ -114,11 +142,11 @@ def polinomialDegreeUpToD(x, y):
 	result = 0
 	for i in range(len(x)):
 		result += x[i] * y[i]
-		#print(result, "->", end='')
+		print(result, "->", end='')
 	result = result + constanta
-	#print("result plus constanta", result)
+	print("result plus constanta", result)
 	result = result ** degree
-	#print("result ", result)
+	print("result ", result)
 	return result
 
 '''
@@ -145,7 +173,7 @@ def calculateArrayD():
 	for i in range(banyakData):
 		row = []
 		for j in range(banyakData):
-			#print("data yang digunakan ", arrayData[i], "dan ", arrayData[j])
+			print("data yang digunakan ", arrayData[i], "dan ", arrayData[j])
 			row.append( arrayKelas[i] * arrayKelas[j] 
 			* ( polinomialDegreeUpToD(arrayData[i], arrayData[j]) + (lamda**2) ))
 		print(row)
@@ -159,7 +187,7 @@ def seqLearning():
 	setGamma()
 	dAi = [0.0 for i in range(banyakData)]
 	newAi = [0.0 for i in range(banyakData)]
-	while True:
+	for i in range(maksimalLoop):
 		ei = [0.0 for i in range(banyakData)]
 		for i in range(banyakData):
 			#print(ei[i] , "===>")
@@ -173,7 +201,7 @@ def seqLearning():
 			newAi[i] = arrayAlphaI[i] + dAi[i]
 			#print("new Ai %.6f" %newAi[i])
 		
-		#print("cek")
+		print("cek")
 		count = 0
 		for i in range(banyakData):
 			if dAi[i] <= 0.00001:
@@ -201,7 +229,11 @@ def calculateSign(x):
 	
 #print(linier( [2], [2] ) )
 #setArrayData()
+arrayData = normalisasiData()
+print(arrayData)
 printArrayData()
 seqLearning()
-print("Sign for (1, 5) = %d" %calculateSign([1, 5]))
+print("Sign for (90, 155) = %d" %calculateSign([90, 155]))
+
+#print("Sign for (1, 5) = %d" %calculateSign([1, 5]))
 #printArrayD()
