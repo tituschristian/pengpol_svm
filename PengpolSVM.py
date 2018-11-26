@@ -1,16 +1,19 @@
 
 selectedKernel = 0
-degree = 2
-constanta = 2
+degree = 0
+constanta = 0
 thou = 0
-lamda = 3
+lamda = 0
 gamma = 0
 maxGamma = 0
 maksimalLoop = 100
 
 # Data
-banyakFitur = 2
-banyakData = 5
+banyakFitur = 0
+banyakData = 0
+
+arrayData = []
+'''
 arrayData = [
   [60,  165],
   [70,  160],
@@ -19,20 +22,13 @@ arrayData = [
   [40,  175],
   [90, 	155]]
 '''
-arrayData = [
-  [1,    1],
-  [1,   -1],
-  [-1,   1],
-  [-1,  -1]]
+
 '''
 arrayKelas = [
   1, 1, 1, -1, -1
 ]
 '''
-arrayKelas = [
-  -1, 1, 1, -1
-]
-'''
+
 arrayAlphaI = []
 arrayD = []
 arrayK = []
@@ -86,26 +82,41 @@ def setGamma():
 		else:
 			break
 	
+def setSelectedKernel():
+	print("1. Linier")
+	print("2. Polinomial of Degree D")
+	print("3. Polinomial of Degree up to D")
+	print("4. Gaussian RBF")
+	print("5. Sigmoid")
+	print("6. Invers Multi Kuadratik")
+	print("7. Additive")
+	selectedKernel = input("Select Kernel: ")	
 
-def setArrayData():
+def setArrayData(dataInput = []):
 	global arrayData
 	global banyakData
 	global banyakFitur
-	banyakFitur = int(input("Masukkan banyak fitur: "))
-	banyakData = int(input("Masukkan banyak data: "))
-	print("Silahkan masukkan data setiap baris")
+	if banyakFitur == 0:
+		banyakFitur = int(input("Masukkan banyak fitur: "))
+	if banyakData == 0:
+		banyakData = int(input("Masukkan banyak data: "))
+	
+	if len(dataInput) == 0:
+		print("Silahkan masukkan data setiap baris")
 
-	for i in range(banyakData):
-		print("Fitur ", (i+1), end='|')
+		for i in range(banyakFitur):
+			print("Fitur", (i+1), end='|')
 
-	print("Kelas / Kategori")
-	for i in range(banyakData):
-		row = [int(x) for x in input().split()]
-		arrayData.append(row)
-
+		print("Kelas / Kategori")
+		for i in range(banyakData):
+			row = [int(x) for x in input().split()]
+			arrayData.append(row)
+	else :
+		arrayData = dataInput
+		
 def printArrayData():
-	for i in range(len(arrayData)):
-		for j in range(len(arrayData[i])):
+	for i in range(banyakData):
+		for j in range(banyakFitur):
 			print(arrayData[i][j], end=' ')
 		print("")
 	print("")
@@ -149,23 +160,17 @@ def polinomialDegreeUpToD(x, y):
 	print("result ", result)
 	return result
 
-'''
-def setSelectedKernel():
-	print("1. Linier")
-	print("2. Polinomial of Degree D")
-	print("3. Polinomial of Degree up to D")
-	print("4. Gaussian RBF")
-	print("5. Sigmoid")
-	print("6. Invers Multi Kuadratik")
-	print("7. Additive")
-	selectedKernel = input("Select Kernel: ")
-
-def calculateKernel()
-	if (selectedKernel == 0):
+def calculateKernel(x, y):
+	if selectedKernel == 0 :
 		print("Please select kernel")
 		setSelectedKernel()
-	else:
-'''		
+	
+	if selectedKernel == 1:
+		return linier(x, y)
+	elif selectedKernel == 2:
+		return polinomialDegreeD(x, y)
+	elif selectedKernel == 3:
+		return polinomialDegreeUpToD(x, y)
 
 def calculateArrayD():
 	global arrayD
@@ -229,11 +234,28 @@ def calculateSign(x):
 	
 #print(linier( [2], [2] ) )
 #setArrayData()
+
+arrayDataTest = [
+  [1,   1, -1],
+  [1,  -1,  1],
+  [-1,  1,  1],
+  [-1, -1, -1]]
+  
+banyakData = 4
+banyakFitur = 2
+setArrayData(arrayDataTest) 
+printArrayData()
+'''
+arrayKelas = [
+  -1, 1, 1, -1
+]
+'''
+'''
 arrayData = normalisasiData()
 print(arrayData)
 printArrayData()
 seqLearning()
 print("Sign for (90, 155) = %d" %calculateSign([90, 155]))
-
+'''
 #print("Sign for (1, 5) = %d" %calculateSign([1, 5]))
 #printArrayD()
