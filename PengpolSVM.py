@@ -1,28 +1,13 @@
-
-selectedKernel = 3
-degree = 0
-constanta = 0
-thou = 0
-lamda = 0
-maksimalLoop = 500 
-
-# Data
-# banyak fitur satu baris data, serta sebagai index kelas
-banyakFitur = 0  
-# banyak semua data
-banyakData = 0
-
-arrayData = []
-
-arrayAlphaI = []
-
+## Normalisasi
 def normalisasiData(arrayData, minRange = 0, maxRange = 1):
 	maxFiturI = []
 	minFiturI = []
 	arrayRes = []
+	banyakData = len(arrayData)
+	banyakFitur = len(arrayData[0])
 	for j in range(banyakFitur):
-		maxFiturI.append( max( max([arrayData[i][j:j+1] for i in range(0, banyakData)]) ) )
-		minFiturI.append( min( min([arrayData[i][j:j+1] for i in range(0, banyakData)]) ) )
+		maxFiturI.append( max( max( [arrayData[i][j:j+1] for i in range(banyakData)] ) ) )
+		minFiturI.append( min( min( [arrayData[i][j:j+1] for i in range(banyakData)] ) ) )
 		
 	for i in range(banyakData):
 		temp = []
@@ -30,104 +15,20 @@ def normalisasiData(arrayData, minRange = 0, maxRange = 1):
 			temp.append( (minRange +
 				( (arrayData[i][j] - minFiturI[j]) * (maxRange - minRange)
 				/ ( maxFiturI[j] - minFiturI[j] ) ) ) )
-		temp.append(arrayData[i][banyakFitur])
 		arrayRes.append(temp)
 	return arrayRes
+
 	
-def setDegree():
-	global degree
-	degree = int(input("Input degree: "))
-
-def setConstanta():
-	global constanta
-	while True:
-		constanta = int(input("Input constanta: "))
-		if constanta < 1:
-			print("Masukkan constanta lebih dari 1")
-		else:
-			break
-
-def setLamda():
-	global lamda
-	lamda = int(input("Input lambda: "))
-
-def setGamma(maxGamma):
-	print("Masukkan gamma antara 0 - %.5f" %maxGamma)
-	while True:
-		gamma = float(input("Input gamma: "))
-		if gamma <= 0 and gamma >= maxGamma:
-			print("Masukkan gamma lebih dari 0 dan kurang dari %.5f" %maxGamma)
-		else:
-			break
-	return gamma
-	
+## Kernel
+# utils
+selectedKernel = 0
 def setSelectedKernel():
 	global selectedKernel
 	print("1. Linier")
 	print("2. Polinomial of Degree D")
 	print("3. Polinomial of Degree up to D")
-	print("4. Gaussian RBF")
-	print("5. Sigmoid")
-	print("6. Invers Multi Kuadratik")
-	print("7. Additive")
-	selectedKernel = int(input("Select Kernel: "))	
-
-def setArrayData():
-	global banyakData
-	global banyakFitur
+	selectedKernel = int(input("Select Kernel: "))
 	
-	arrayData = []
-	banyakFitur = int(input("Masukkan banyak fitur: "))
-	banyakData = int(input("Masukkan banyak data: "))
-	
-	print("Silahkan masukkan data setiap baris (dipisahkan dengan spasi)")
-
-	# print kolom fitur dan kelas
-	for i in range(banyakFitur):
-		print("Fitur", (i+1), end='|')
-	print("Kelas / Kategori")
-	
-	for i in range(banyakData):
-		row = [int(x) for x in input().split()]
-		arrayData.append(row)
-	return arrayData
-
-def printArray(array):
-	for i in range(len(array)):
-		for j in range(len(array[i])):
-			print("%.3f" %array[i][j], end=' ')
-		print("")
-	print("")
-
-def linier(x, y):
-	result = 0
-	for i in range(len(x)):
-		result += x[i] * y[i]
-	return result
-			
-def polinomialDegreeD(x, y):
-	if(degree == 0):
-		setDegree()
-	
-	result = 0
-	for i in range(len(x)):
-		result += x[i] * y[i]
-	result = result ** degree
-	return result
-	
-def polinomialDegreeUpToD(x, y):
-	if (degree == 0):
-		setDegree()
-	if (constanta < 1):
-		setConstanta()
-	
-	result = 0
-	for i in range(banyakFitur):
-		result += x[i] * y[i]
-	result = result + constanta
-	result = result ** degree
-	return result
-
 def calculateKernel(x, y):
 	if selectedKernel == 0 :
 		print("Please select kernel")
@@ -140,100 +41,183 @@ def calculateKernel(x, y):
 	elif selectedKernel == 3:
 		return polinomialDegreeUpToD(x, y)
 
-def calculateArrayD():
-	if lamda == 0:
-		setLamda()
-		
-	arrayD = []
-	for i in range(banyakData):
-		row = []
-		for j in range(banyakData):
-			row.append( arrayData[i][banyakFitur] * arrayData[j][banyakFitur] 
-			* ( (calculateKernel(arrayData[i], arrayData[j])) + (lamda**2) ) )
-		arrayD.append(row)
-	return arrayD
+def linier(x, y):
+	result = 0
+	for i in range(len(x)):
+		result += x[i] * y[i]
+	return result
+			
+def polinomialDegreeD(x, y):
+	degree = 2
+	result = 0
 	
+	for i in range(len(x)):
+		result += x[i] * y[i]
+	result = result ** degree
+	return result
+	
+def polinomialDegreeUpToD(x, y):
+	constanta = 1
+	degree = 2
+	result = 0
+	
+	for i in range(len(x)):
+		result += x[i] * y[i]
+	result = result + constanta
+	result = result ** degree
+	return result
+# run
+def calculateArrayKernel(data, kelas):
+	arrayKernel = []
+	for i in range(len(data) - 1):
+		row = []
+		for j in range(len(data) - 1):
+			row.append( calculateKernel(data[i], data[j]) )
+		arrayKernel.append(row)
+	return arrayKernel
+
+
+## sequential learning
+# utils
 def findMaxGamma(arrayD):
 	return (2 / (max(max(arrayD))))
 
-def seqLearning(treshold):
-	global arrayAlphaI
-	arrayAlphaI = [0.0 for i in range(banyakData)]
-	arrayD = calculateArrayD()
+def setGamma(maxGamma):
+	print("Masukkan gamma antara 0 - %.5f" %maxGamma)
+	while True:
+		gamma = float(input("Input gamma: "))
+		if gamma <= 0 and gamma >= maxGamma:
+			print("Masukkan gamma lebih dari 0 dan kurang dari %.5f" %maxGamma)
+		else:
+			break
+	return gamma
+# utils step 1
+def calculateArrayD(arrayKernel, kelas):
+	lamda = 3
+	arrayD = []
+	banyakData = len(arrayKernel)
+	
+	for i in range(banyakData):
+		row = []
+		for j in range(banyakData):
+			row.append( kelas[i] * kelas[j] * 
+			( arrayKernel[i][j] + (lamda**2) ) )
+		arrayD.append(row)
+	return arrayD
+
+
+## Sequential
+# utils
+def printArray(array):
+	for i in range(len(array)):
+		for j in range(len(array[i])):
+			print("%.3f" %array[i][j], end=' ')
+		print("")
+	print("")
+# run
+def sequentialLearning(arrKernel, kelas):
+	constanta = 1
+	gamma = 0
+	maksimalLoop = 1000
+	treshold = 0.00001
+	banyakData = len(arrKernel)
+	
+	# Step 1
+	arrayD = calculateArrayD(arrKernel, kelas)
+
+	# Step 2
 	maxGamma = findMaxGamma(arrayD)
 	gamma = setGamma(maxGamma)
-	printArray(arrayD)
-	
-	dAi = [0.0 for i in range(banyakData)]
+	Ai = [0.0 for i in range(banyakData)]
+	deltaAi = [0.0 for i in range(banyakData)]
 	newAi = [0.0 for i in range(banyakData)]
 	countLoop = 0
 	for i in range(maksimalLoop):
-		ei = [0.0 for i in range(banyakData)]
-		for i in range(banyakData):
-			for j in range(banyakData):
-				ei[i] += (arrayAlphaI[j] * arrayD[i][j])
-			dAi[i] = min( max(gamma * (1 - ei[i]), -1 * arrayAlphaI[i] ), (constanta - arrayAlphaI[i]) )
-			newAi[i] = arrayAlphaI[i] + dAi[i]
-			
+		Ei = [0.0 for i in range(banyakData)]
+		for j in range(banyakData):
+			for k in range(banyakData):
+				Ei[j] += (Ai[j] * arrayD[j][k])	
+			deltaAi[j] = min( max(gamma * (1 - Ei[j]), - 1 * Ai[j] ), (constanta - Ai[j]) )
+			newAi[j] = Ai[j] + deltaAi[j]
+		
+		# Step 3
 		count = 0
-		for i in range(banyakData):
-			if dAi[i] <= treshold:
+		for z in range(banyakData):
+			if deltaAi[z] <= treshold:
 				count += 1
-			arrayAlphaI[i] = newAi[i]
+			Ai[z] = newAi[z]
 		
 		if count == banyakData:
 			break
 		countLoop += 1
 	
 	print("Melakukan perulangan sebanyak %d kali" %countLoop)
-	for i in range(len(arrayAlphaI)):
-		print("alpha ", (i+1), "= %.3f" %arrayAlphaI[i])
+	
+	## print array alpha
+	for i in range(len(Ai)):
+		print("alpha ", (i+1), "= %.3f" %Ai[i])
 	print("")
-
-def calculateSign(x):
+	
+	return Ai
+	
+## hitung nilai jarak data baru
+def calculateSign(alpha, data, kelas):
 	result = 0
+	banyakData = len(data) - 1
+	dataBaru = data[-1]
 	for i in range(banyakData):
-		temp = (arrayData[i][banyakFitur] * arrayAlphaI[i] 
-		* calculateKernel(arrayData[i], x))
-		print("jarak ke %d  = %.3f" %((i+1), temp))
+		temp = (kelas[i] * alpha[i] 
+		* calculateKernel(data[i], dataBaru))
+		#print("jarak ke %d  = %.3f" %((i+1), temp))
 		result += temp
+	return result
+	
+## MAIN
+def SVM():
+	arrayData = [
+	  [60,  165],
+	  [70,  160],
+	  [80,  165],
+	  [100, 155],
+	  [40,  175],
+	  [90,  155]]
+	  
+	arrayKelas = [
+		1,
+		1,
+		1,
+		-1,
+		-1]
+	'''
+	arrayData = [
+	  [1,  1],
+	  [1,  -1],
+	  [-1,  1],
+	  [-1, -1],
+	  [1 , 5]]
+	  
+	arrayKelas = [
+		-1,
+		1,
+		1,
+		-1]
+	'''
+	## normalisasi data
+	arrayData = normalisasiData(arrayData, 1, 2)
+	printArray(arrayData)
+	
+	## hitung array kernel
+	arrayKernel = calculateArrayKernel(arrayData, arrayKelas)
+	printArray(arrayKernel)
+	
+	## sequential learning
+	arrayAlpha = sequentialLearning(arrayKernel, arrayKelas)
+	
+	## hitung alpha i * (kernel data baru dengan data training)
+	dataBaru = arrayData[-1]
+	result = calculateSign(arrayAlpha, arrayData, arrayKelas)
 	print("total jarak = %.3f" %result)	
-	if result < 0:
-		return -1
-	else :
-		return 1
-
-def SVM(dataTraining, dataUji, treshold):
-	global arrayData
-	global banyakData
-	global banyakFitur
+	kategori = 1 if result > 0 else -1
+	print("kategori", kategori)
 	
-	banyakFitur = len(dataTraining[0]) - 1
-	banyakData = len(dataTraining)
-	
-	arrayNorm = normalisasiData(dataTraining)
-	printArray(arrayNorm)
-	arrayData = arrayNorm
-	
-	seqLearning(treshold)
-	return calculateSign(dataUji)
-	
-
-arrayData = [
-  [60,  165, 1],
-  [70,  160, 1],
-  [80,  165, 1],
-  [100, 155, -1],
-  [40,  175, -1]]
-
-dataCari = [90, 155]
-	
-arrayDataTest = [
-  [1,   1, -1],
-  [1,  -1,  1],
-  [-1,  1,  1],
-  [-1, -1, -1]]
-  
-find = [1, 5]
-
-print("Sign for", find, " = %d" %SVM(arrayData, dataCari, 0.001) )
+SVM()
