@@ -136,7 +136,7 @@ def sequentialLearning(arrKernel, kelas):
 		Ei = [0.0 for i in range(banyakData)]
 		for j in range(banyakData):
 			for k in range(banyakData):
-				Ei[j] += (Ai[j] * arrayD[j][k])	
+				Ei[j] += (Ai[k] * arrayD[j][k])	
 			deltaAi[j] = min( max(gamma * (1 - Ei[j]), - 1 * Ai[j] ), (constanta - Ai[j]) )
 			newAi[j] = Ai[j] + deltaAi[j]
 		
@@ -214,7 +214,6 @@ def SVM():
 	arrayAlpha = sequentialLearning(arrayKernel, arrayKelas)
 	
 	## hitung alpha i * (kernel data baru dengan data training)
-	dataBaru = arrayData[-1]
 	result = calculateSign(arrayAlpha, arrayData, arrayKelas)
 	print("total jarak = %.3f" %result)	
 	kategori = 1 if result > 0 else -1
